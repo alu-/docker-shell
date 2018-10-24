@@ -1,0 +1,75 @@
+#!/bin/sh
+set -e
+shells="bash fish zsh tcsh csh ksh sh"
+command="$1"
+
+case "$command" in
+    --help|-h|-?)
+        echo "Gives you a shell in a running Docker container".
+        echo ""
+        echo "Usage:"
+        echo "  `basename $0` [CONTAINER] [SHELL]"
+        echo "  `basename $0` --help|-h|-?"
+        echo "  `basename $0` --version|-v"
+        echo ""
+        echo "Arguments:"
+        echo "  CONTAINER       Name of the container"
+        echo "  SHELL           Force a specific shell, otherwise pick 'best' shell"
+        echo "                  [$shells]"
+        echo "  -h, -?, --help  Print this help text"
+        echo "  -v, --version   Print version and exit"
+        echo ""
+        echo "Note:"
+        echo "  If the container name is omitted then the newest container will be used."
+        echo "  Container name will match any part of name with wildcards."
+        echo "  E.g 'web' and 'ebserv' will both match 'webserver'."
+        echo "  If container name matches more than one container the latest one will be used."
+        echo ""
+        echo "Author:"
+        echo "  Oskar Andersson <alu@byteberry.net>"
+        exit 0
+        ;;
+    --version|-v)
+        echo "`basename $0` v1.0.0"
+        exit 0
+        ;;
+    *)
+esac
+
+if [ -z "$1" ]; then
+    # Latest running container
+    container=`docker ps --latest --filter "status=running" --format "{{.Names}}"`
+else
+    # Latest container based on name filtering
+    container=`docker ps --latest --filter "name=$command" --filter "status=running" --format "{{.Names}}"`
+fi
+
+if [ -z "$container" ]; then
+    echo "Error: No container found."
+    exit 1
+fi
+
+if [ -n "$2" ]; then
+    shells="$2"
+fi
+
+# Detected shell
+set +e
+for shell in $shells
+do
+    check=`docker exec -it $container which $shell`
+    if [ $? -eq 0 ]; then
+        chosen_shell=$shell
+        break
+    fi
+done
+
+if [ -z "$chosen_shell" ]; then
+    echo "Error: No shell found."
+    exit 2
+fi
+
+echo "Trying to execute $chosen_shell on $container ..."
+docker exec -it $container $chosen_shell
+echo "Shell exited with exit code $?. Welcome back!"
+exit 0
