@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker pull alpine:3.8
+  - docker run --interactive --detach --name sh_on_alpine alpine:3.8
+
+script:
+  - docker ps
