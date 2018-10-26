@@ -10,8 +10,8 @@ from pexpect import spawn
 def main():
     """ Main """
     executable = Path(__file__).absolute().parent.parent / "docker-shell"
-    child = spawn(str(executable), args=["zsh_on_jessie", "zsh"])
-    child.expect("Trying to execute zsh on zsh_on_jessie ...")
+    child = spawn(str(executable), args=["shell_zsh_on_jessie", "zsh"])
+    child.expect("Trying to execute zsh on shell_zsh_on_jessie ...")
     child.expect("(.+)#")
 
     child.sendline("env")
