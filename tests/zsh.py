@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Test if we can get a sh shell with container and shell defined """
+""" Test if we can get a zsh shell with container and shell defined """
 import sys
 
 from pathlib import Path
@@ -10,15 +10,15 @@ from pexpect import spawn
 def main():
     """ Main """
     executable = Path(__file__).absolute().parent.parent / "docker-shell"
-    child = spawn(str(executable), args=["sh_on_alpine", "sh"])
-    child.expect("Trying to execute sh on sh_on_alpine ...")
-    child.expect("/ #")
+    child = spawn(str(executable), args=["zsh_on_jessie", "zsh"])
+    child.expect("Trying to execute zsh on zsh_on_jessie ...")
+    child.expect("(.+)#")
 
     child.sendline("env")
-    child.expect("DOCKER_SHELL=sh_on_alpine")
+    child.expect("DOCKER_SHELL=zsh_on_jessie")
 
-    child.sendline("cat /proc/$$/cmdline")
-    child.expect("sh")
+    child.sendline("echo $ZSH_VERSION")
+    child.expect("5.6.2")
 
     child.sendline("exit")
     exit_code = child.wait()

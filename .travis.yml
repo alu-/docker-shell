@@ -13,16 +13,25 @@ git:
 
 before_install:
   - docker pull alpine:3.8
+  - docker pull ubuntu:18.04
+  - docker pull zshusers/zsh-5.6.2
+  - docker pull frapsoft/fish
 
 install:
   - pip install pexpect
   - docker run --env "DOCKER_SHELL=sh_on_alpine" --interactive --detach --name sh_on_alpine alpine:3.8
+  - docker run --env "DOCKER_SHELL=bash_on_ubuntu" --interactive --detach --name bash_on_ubuntu ubuntu:18.04
+  - docker run --env "DOCKER_SHELL=zsh_on_jessie" --interactive --detach --name zsh_on_jessie zshusers/zsh-5.6.2
+  - docker run --env "DOCKER_SHELL=fish_on_alpine" --interactive --detach --name fish_on_alpine frapsoft/fish fish
 
 before_script:
   - docker ps
 
 script:
   - tests/sh.py
+  - tests/bash.py
+  - tests/zsh.py
+  - tests/fish.py
 
 notifications:
   email:
